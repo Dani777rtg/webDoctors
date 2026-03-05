@@ -1,0 +1,63 @@
+# =============================================================
+# .gitignore - Plataforma Médica
+# =============================================================
+
+# Variables de entorno (NUNCA subir)
+.env
+.env.local
+.env.production
+.env.*.local
+
+# ---------------------------------------------------------------
+# Java / Spring Boot
+# ---------------------------------------------------------------
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/*.jar
+backend/*.war
+backend/.gradle/
+backend/build/
+backend/out/
+*.class
+*.log
+
+# ---------------------------------------------------------------
+# Node.js / React
+# ---------------------------------------------------------------
+frontend/node_modules/
+frontend/build/
+frontend/.pnp
+frontend/.pnp.js
+frontend/coverage/
+frontend/.env
+frontend/.env.local
+
+# ---------------------------------------------------------------
+# IDEs y editores
+# ---------------------------------------------------------------
+.idea/
+*.iml
+*.iws
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ---------------------------------------------------------------
+# Docker
+# ---------------------------------------------------------------
+docker-compose.override.yml
+
+# ---------------------------------------------------------------
+# PostgreSQL / DB
+# ---------------------------------------------------------------
+*.sql.bak
+pgdata/
+
+# ---------------------------------------------------------------
+# Testing
+# ---------------------------------------------------------------
+tests/performance/results/
+docs/testing/**/*.html
+surefire-reports/

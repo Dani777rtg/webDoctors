@@ -1,0 +1,75 @@
+version: "3.8"
+
+services:
+
+  # ------------------------------------------------------------------
+  # PostgreSQL - Base de datos local de desarrollo
+  # ------------------------------------------------------------------
+  db:
+    image: postgres:16-alpine
+    container_name: medical_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       medical_db
+      POSTGRES_USER:     medical_user
+      POSTGRES_PASSWORD: medical_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medical_user -d medical_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ------------------------------------------------------------------
+  # Adminer - UI web para administrar PostgreSQL (solo desarrollo)
+  # Acceso: http://localhost:8888
+  # Servidor: db | Usuario: medical_user | Contraseña: medical_pass
+  # ------------------------------------------------------------------
+  adminer:
+    image: adminer:latest
+    container_name: medical_adminer
+    restart: unless-stopped
+    ports:
+      - "8888:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ------------------------------------------------------------------
+  # Backend Spring Boot (descomentar cuando esté implementado)
+  # ------------------------------------------------------------------
+  # backend:
+  #   build: ./backend
+  #   container_name: medical_backend
+  #   restart: unless-stopped
+  #   environment:
+  #     SPRING_DATASOURCE_URL:      jdbc:postgresql://db:5432/medical_db
+  #     SPRING_DATASOURCE_USERNAME: medical_user
+  #     SPRING_DATASOURCE_PASSWORD: medical_pass
+  #     SPRING_PROFILES_ACTIVE:     dev
+  #     JWT_SECRET:                 dev_secret_change_in_production_32chars
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+
+  # ------------------------------------------------------------------
+  # Frontend React (descomentar cuando esté implementado)
+  # ------------------------------------------------------------------
+  # frontend:
+  #   build: ./frontend
+  #   container_name: medical_frontend
+  #   environment:
+  #     REACT_APP_API_URL: http://localhost:8080/api
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - backend
+
+volumes:
+  pgdata:
+    driver: local
