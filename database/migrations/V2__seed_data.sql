@@ -10,29 +10,29 @@
 INSERT INTO users (email, password, role, first_name, last_name, phone) VALUES
 -- Administrador
 ('admin@medical.com',
- '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+ '$2a$10$VHWL0cySgVvBEc59r8/WYe12/KOwPMWEXSz2FH.mgYtoh3lJ3hHKi',
  'ADMIN', 'Admin', 'Sistema', '3001000000'),
 
 -- Médicos
 ('dr.garcia@medical.com',
- '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+ '$2a$10$VHWL0cySgVvBEc59r8/WYe12/KOwPMWEXSz2FH.mgYtoh3lJ3hHKi',
  'DOCTOR', 'Carlos', 'García', '3001000001'),
 
 ('dr.martinez@medical.com',
- '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+ '$2a$10$VHWL0cySgVvBEc59r8/WYe12/KOwPMWEXSz2FH.mgYtoh3lJ3hHKi',
  'DOCTOR', 'Ana', 'Martínez', '3001000002'),
 
 ('dr.lopez@medical.com',
- '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+ '$2a$10$VHWL0cySgVvBEc59r8/WYe12/KOwPMWEXSz2FH.mgYtoh3lJ3hHKi',
  'DOCTOR', 'Juan', 'López', '3001000003'),
 
 -- Pacientes
 ('paciente1@mail.com',
- '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+ '$2a$10$VHWL0cySgVvBEc59r8/WYe12/KOwPMWEXSz2FH.mgYtoh3lJ3hHKi',
  'PATIENT', 'María', 'Torres', '3102000001'),
 
 ('paciente2@mail.com',
- '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+ '$2a$10$VHWL0cySgVvBEc59r8/WYe12/KOwPMWEXSz2FH.mgYtoh3lJ3hHKi',
  'PATIENT', 'Luis', 'Herrera', '3102000002');
 
 -- ---------------------------------------------------------------

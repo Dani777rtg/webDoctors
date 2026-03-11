@@ -1,0 +1,401 @@
+{
+  "info": {
+    "name": "Medical Platform API",
+    "description": "Colección completa de endpoints de la Plataforma Médica.\n\n**IMPORTANTE**: Ejecuta primero 'Login' para obtener el token. El script del request de Login guarda el token automáticamente en la variable de colección `token`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "token",   "value": "",                      "type": "string" }
+  ],
+  "item": [
+
+    {
+      "name": "🔍 Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/health",
+            "description": "Verifica que el servidor está corriendo. No requiere autenticación."
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Registro de Paciente",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nuevo.paciente@mail.com\",\n  \"password\": \"Password123\",\n  \"firstName\": \"Juan\",\n  \"lastName\": \"Pérez\",\n  \"phone\": \"3001234567\"\n}"
+            },
+            "description": "Crea una cuenta nueva con rol PATIENT. Devuelve un JWT token."
+          }
+        },
+        {
+          "name": "Login — Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.token) {",
+                  "  pm.collectionVariables.set('token', json.token);",
+                  "  console.log('Token guardado:', json.token.substring(0,30) + '...');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@medical.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "description": "⚡ El token se guarda automáticamente en la variable {{token}}."
+          }
+        },
+        {
+          "name": "Login — Médico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.token) { pm.collectionVariables.set('token', json.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"dr.garcia@medical.com\",\n  \"password\": \"Password123!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login — Paciente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.token) { pm.collectionVariables.set('token', json.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"paciente1@mail.com\",\n  \"password\": \"Password123!\"\n}"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "👨‍⚕️ Médicos (Público)",
+      "item": [
+        {
+          "name": "Listar todos los médicos",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/doctors",
+            "description": "No requiere autenticación. Devuelve médicos activos."
+          }
+        },
+        {
+          "name": "Ver disponibilidad de médico",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/doctors/1/availability",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "doctors", "1", "availability"]
+            },
+            "description": "Reemplaza el 1 con el ID del médico."
+          }
+        },
+        {
+          "name": "Ver slots disponibles por fecha",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/doctors/1/slots?date=2026-03-10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "doctors", "1", "slots"],
+              "query": [{ "key": "date", "value": "2026-03-10" }]
+            },
+            "description": "Devuelve lista de horarios con campo 'available: true/false'."
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "📅 Citas — Paciente",
+      "item": [
+        {
+          "name": "Agendar nueva cita",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/api/appointments",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doctorId\": 1,\n  \"appointmentDate\": \"2026-03-12\",\n  \"startTime\": \"09:00\",\n  \"appointmentType\": \"GENERAL\",\n  \"patientNotes\": \"Dolor de cabeza frecuente\"\n}"
+            },
+            "description": "Requiere token de PATIENT. La fecha debe ser futura (Lun-Vie)."
+          }
+        },
+        {
+          "name": "Ver mis citas",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/appointments/my",
+            "description": "Devuelve todas las citas del paciente autenticado."
+          }
+        },
+        {
+          "name": "Cancelar cita",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointments/1/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointments", "1", "cancel"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"No puedo asistir en esa fecha\"\n}"
+            },
+            "description": "Reemplaza 1 con el ID de la cita. Body es opcional."
+          }
+        },
+        {
+          "name": "Reprogramar cita",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointments/1/reschedule",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointments", "1", "reschedule"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doctorId\": 1,\n  \"appointmentDate\": \"2026-03-15\",\n  \"startTime\": \"14:00\",\n  \"appointmentType\": \"GENERAL\"\n}"
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "🩺 Gestión — Médico",
+      "item": [
+        {
+          "name": "Ver mi agenda",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/appointments/doctor",
+            "description": "Requiere token de DOCTOR."
+          }
+        },
+        {
+          "name": "Confirmar cita",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointments/1/confirm",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointments", "1", "confirm"]
+            }
+          }
+        },
+        {
+          "name": "Completar cita",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointments/1/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointments", "1", "complete"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar disponibilidad",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/api/doctors/availability",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dayOfWeek\": 1,\n  \"startTime\": \"07:00\",\n  \"endTime\": \"18:00\",\n  \"slotDurationMinutes\": 30\n}"
+            },
+            "description": "dayOfWeek: 1=Lunes, 2=Martes, 3=Miércoles, 4=Jueves, 5=Viernes"
+          }
+        },
+        {
+          "name": "Registrar historial médico",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/api/doctors/medical-history",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentId\": 1,\n  \"observations\": \"Paciente presenta cefalea tensional leve\",\n  \"diagnosis\": \"Cefalea tensional\",\n  \"treatment\": \"Ibuprofeno 400mg cada 8 horas por 3 días\"\n}"
+            },
+            "description": "La cita debe estar en estado CONFIRMED o COMPLETED."
+          }
+        },
+        {
+          "name": "Ver historial de paciente",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/doctors/patients/1/history",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "doctors", "patients", "1", "history"]
+            },
+            "description": "Reemplaza 1 con el ID del paciente (campo patientId en la cita)."
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "⚙️ Administrador",
+      "item": [
+        {
+          "name": "Listar todos los usuarios",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/admin/users",
+            "description": "Requiere token de ADMIN."
+          }
+        },
+        {
+          "name": "Listar usuarios por rol",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users?role=DOCTOR",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users"],
+              "query": [{ "key": "role", "value": "DOCTOR" }]
+            },
+            "description": "role puede ser: DOCTOR, PATIENT, ADMIN"
+          }
+        },
+        {
+          "name": "Crear médico",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": "{{baseUrl}}/api/admin/doctors",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"dr.nuevo@medical.com\",\n  \"password\": \"Doctor123!\",\n  \"firstName\": \"Pedro\",\n  \"lastName\": \"Ramírez\",\n  \"phone\": \"3009999999\",\n  \"specialty\": \"Medicina General\",\n  \"licenseNumber\": \"MED-010-COL\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Activar usuario",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/1/activate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", "1", "activate"]
+            }
+          }
+        },
+        {
+          "name": "Desactivar usuario",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/1/deactivate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", "1", "deactivate"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar usuario",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", "1"]
+            }
+          }
+        },
+        {
+          "name": "Agenda global",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": "{{baseUrl}}/api/admin/appointments"
+          }
+        }
+      ]
+    }
+
+  ]
+}
