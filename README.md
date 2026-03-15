@@ -34,44 +34,110 @@ medical-platform/
 ## Inicio Rápido (Local)
 
 ### Requisitos previos
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [Git](https://git-scm.com/)
 
-### 1. Clonar el repositorio
+| Herramienta | Versión mínima | Descarga |
+|---|---|---|
+| Java JDK | 17 | [adoptium.net](https://adoptium.net/) |
+| Apache Maven | 3.8 | [maven.apache.org](https://maven.apache.org/) |
+| PostgreSQL | 14+ | [postgresql.org](https://www.postgresql.org/download/) |
+| Git | cualquiera | [git-scm.com](https://git-scm.com/) |
+
+> **¿No quiero instalar PostgreSQL?** Usa Docker: `docker-compose up -d db`
+
+---
+
+### Paso 1 — Clonar el repositorio
 
 ```bash
 git clone https://github.com/TU_USUARIO/medical-appointments-platform.git
 cd medical-appointments-platform
 ```
 
-### 2. Configurar variables de entorno
+---
+
+### Paso 2 — Configurar variables de entorno del backend
 
 ```bash
-cp .env.example .env
-# Edita .env si necesitas cambiar algún valor
+# Copia el template y edita si tus credenciales de Postgres son distintas
+cp backend/.env.example backend/.env
 ```
 
-### 3. Levantar la base de datos
+El archivo `backend/.env` por defecto usa:
+```
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=QA
+DB_USER=postgres
+DB_PASSWORD=742742
+```
+
+Cámbialo si tu PostgreSQL tiene credenciales diferentes.
+
+---
+
+### Paso 3 — Crear la base de datos
+
+> **La base de datos NO se crea sola al arrancar el backend.**
+> PostgreSQL tiene que tener la base de datos creada antes de que Spring Boot inicie.
+
+**Opción A — Script automático (recomendado):**
 
 ```bash
-docker-compose up -d db adminer
+# Windows (doble clic o desde terminal)
+database\setup-local.bat
+
+# O con PowerShell directamente
+cd database
+.\setup-local.ps1
 ```
 
-Esto levanta:
-- **PostgreSQL** en `localhost:5432`
-- **Adminer** (UI de DB) en [http://localhost:8888](http://localhost:8888)
+El script hace todo solo:
+1. Detecta `psql.exe` en tu sistema
+2. Lee las credenciales de `backend/.env`
+3. Crea la base de datos `QA` (te pregunta si ya existe)
+4. Crea todas las tablas (`V1__init_schema.sql`)
+5. Inserta datos de prueba (`V2__seed_data.sql`)
 
-### 4. Verificar la base de datos
+**Opción B — Manual con pgAdmin:**
+1. Abre pgAdmin → clic derecho en "Databases" → Create Database → nombre: `QA`
+2. Query Tool → abre y ejecuta `database/migrations/V1__init_schema.sql`
+3. Query Tool → abre y ejecuta `database/migrations/V2__seed_data.sql`
 
-Abre [http://localhost:8888](http://localhost:8888) e ingresa:
-- Sistema: `PostgreSQL`
-- Servidor: `db`
-- Usuario: `medical_user`
-- Contraseña: `medical_pass`
-- Base de datos: `medical_db`
+**Opción C — Manual con psql:**
+```bash
+psql -U postgres -c "CREATE DATABASE \"QA\""
+psql -U postgres -d QA -f database/migrations/V1__init_schema.sql
+psql -U postgres -d QA -f database/migrations/V2__seed_data.sql
+```
 
-> Los scripts `V1__init_schema.sql` y `V2__seed_data.sql` son ejecutados automáticamente
-> por Flyway cuando el backend inicia por primera vez.
+---
+
+### Paso 4 — Iniciar el backend
+
+```bash
+cd backend
+run.bat        # Windows
+# o: mvn spring-boot:run
+```
+
+El servidor arranca en **http://localhost:8080**
+
+- Swagger UI: http://localhost:8080/swagger-ui/index.html
+- Health check: http://localhost:8080/api/health
+
+---
+
+### ¿Qué pasa si tengo otro nombre de base de datos?
+
+Edita `backend/.env`:
+```
+DB_NAME=mi_otra_db
+```
+
+O pasa el parámetro al script de setup:
+```bash
+.\setup-local.ps1 -DbName "mi_otra_db" -DbPassword "mi_pass"
+```
 
 ## Credenciales de Prueba (seed)
 
