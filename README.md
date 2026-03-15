@@ -16,18 +16,28 @@ Sistema web para la gestión de citas médicas con roles diferenciados (Paciente
 
 ```
 medical-platform/
-├── backend/          ← API REST (Spring Boot)
-├── frontend/         ← SPA (React)
+├── backend/
+│   ├── src/                  ← Código fuente Java (Spring Boot)
+│   ├── .env.example          ← Template de variables de entorno
+│   ├── .env                  ← Variables locales (NO se sube a Git)
+│   ├── run.bat               ← Script para arrancar el backend en Windows
+│   └── pom.xml
+├── frontend/                 ← SPA (React) — en desarrollo
 ├── database/
-│   └── migrations/   ← Scripts Flyway (V1, V2...)
+│   ├── migrations/
+│   │   ├── V1__init_schema.sql  ← Crea todas las tablas e índices
+│   │   └── V2__seed_data.sql    ← Datos de prueba (usuarios, médicos, citas)
+│   ├── setup-local.ps1       ← Script automático de setup (PowerShell)
+│   └── setup-local.bat       ← Wrapper para doble clic en Windows
 ├── docs/
-│   ├── architecture/ ← Diagramas Isoflow
-│   └── testing/      ← Casos de prueba y bitácora
+│   ├── postman/              ← Colección Postman para probar endpoints
+│   ├── architecture/         ← Diagramas de arquitectura
+│   └── testing/              ← Casos de prueba y bitácora
 ├── tests/
-│   ├── e2e/          ← Selenium
-│   └── performance/  ← JMeter
+│   ├── e2e/                  ← Selenium
+│   └── performance/          ← JMeter
 ├── .github/
-│   └── workflows/    ← CI/CD
+│   └── workflows/            ← CI/CD (GitHub Actions)
 └── docker-compose.yml
 ```
 
@@ -58,20 +68,23 @@ cd medical-appointments-platform
 ### Paso 2 — Configurar variables de entorno del backend
 
 ```bash
-# Copia el template y edita si tus credenciales de Postgres son distintas
+# Windows (cmd o PowerShell)
+copy backend\.env.example backend\.env
+
+# Linux / Mac
 cp backend/.env.example backend/.env
 ```
 
-El archivo `backend/.env` por defecto usa:
+Abre `backend/.env` y ajusta los valores a tu instalación local de PostgreSQL:
 ```
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=QA
 DB_USER=postgres
-DB_PASSWORD=742742
+DB_PASSWORD=TU_CONTRASEÑA_POSTGRES
 ```
 
-Cámbialo si tu PostgreSQL tiene credenciales diferentes.
+> `backend/.env` está en `.gitignore` — nunca se sube al repositorio.
 
 ---
 
