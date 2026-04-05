@@ -1,0 +1,8 @@
+$kind: collection
+description: Colección de pruebas para la plataforma de citas médicas
+variables:
+  base_url: http://localhost:8080
+  patient_token: ""
+  doctor_token: ""
+  admin_token: ""
+  appointment_id: ""

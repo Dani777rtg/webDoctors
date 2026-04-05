@@ -1,0 +1,8 @@
+$kind: http-request
+url: "{{base_url}}/api/doctors/99999/availability"
+method: GET
+scripts:
+  - type: afterResponse
+    code: pm.test('Status 404 Not Found', () => pm.response.to.have.status(404));
+    language: text/javascript
+order: 4000

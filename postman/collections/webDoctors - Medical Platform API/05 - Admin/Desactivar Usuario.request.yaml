@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{base_url}}/api/admin/users/2/deactivate"
+method: PUT
+headers:
+  Authorization: Bearer {{admin_token}}
+scripts:
+  - type: afterResponse
+    code: pm.test('Status 200', () => pm.response.to.have.status(200));
+    language: text/javascript
+order: 5000

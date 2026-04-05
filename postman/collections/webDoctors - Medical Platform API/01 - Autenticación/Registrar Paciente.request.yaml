@@ -1,0 +1,32 @@
+$kind: http-request
+name: Registrar Paciente
+url: "{{base_url}}/api/auth/register"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "paciente_test2@correo.com",
+      "password": "Password123!",
+      "firstName": "Juan",
+      "lastName": "Perez",
+      "phone": "3001234567"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 201 Created', () => pm.response.to.have.status(201));
+      pm.test('Response tiene token', () => {
+        const json = pm.response.json();
+        pm.expect(json.token).to.be.a('string');
+        pm.expect(json.role).to.eql('PATIENT');
+      });
+
+      if (pm.response.code === 201) {
+        const json = pm.response.json();
+        pm.collectionVariables.set('patient_token', json.token);
+      }
+    language: text/javascript
+order: 1000
