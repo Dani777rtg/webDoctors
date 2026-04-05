@@ -1,0 +1,20 @@
+$kind: http-request
+url: "{{base_url}}/api/doctors/availability"
+method: PUT
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{doctor_token}}
+body:
+  type: text
+  content: |-
+    {
+      "dayOfWeek": "MONDAY",
+      "startTime": "08:00",
+      "endTime": "17:00",
+      "slotDurationMinutes": 30
+    }
+scripts:
+  - type: afterResponse
+    code: pm.test('Status 200', () => pm.response.to.have.status(200));
+    language: text/javascript
+order: 4000

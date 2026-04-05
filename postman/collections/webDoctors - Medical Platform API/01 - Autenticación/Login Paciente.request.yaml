@@ -1,0 +1,30 @@
+$kind: http-request
+name: Login Paciente
+url: "{{base_url}}/api/auth/login"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "paciente1@mail.com",
+      "password": "Password123!"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 200', () => pm.response.to.have.status(200));
+
+      pm.test('Token recibido', () => {
+        const json = pm.response.json();
+        pm.expect(json.token).to.be.a('string');
+      });
+
+      // Guardar token automáticamente
+      if (pm.response.code === 200) {
+        const json = pm.response.json();
+        pm.collectionVariables.set('patient_token', json.token);
+      }
+    language: text/javascript
+order: 2000

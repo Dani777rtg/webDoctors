@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{base_url}}/api/appointments/my"
+method: GET
+headers:
+  Authorization: Bearer {{patient_token}}
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('Status 200', () => pm.response.to.have.status(200));
+      pm.test('Response es un array', () => {
+        pm.expect(pm.response.json()).to.be.an('array');
+      });
+    language: text/javascript
+order: 2000

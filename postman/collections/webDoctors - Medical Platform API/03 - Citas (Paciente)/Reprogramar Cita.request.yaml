@@ -1,0 +1,21 @@
+$kind: http-request
+url: "{{base_url}}/api/appointments/{{appointment_id}}/reschedule"
+method: PUT
+headers:
+  Content-Type: application/json
+  Authorization: Bearer {{patient_token}}
+body:
+  type: text
+  content: |-
+    {
+      "doctorId": 1,
+      "appointmentDate": "2026-04-15",
+      "startTime": "10:00",
+      "appointmentType": "GENERAL",
+      "patientNotes": "Reprogramada por prueba"
+    }
+scripts:
+  - type: afterResponse
+    code: pm.test('Status 200', () => pm.response.to.have.status(200));
+    language: text/javascript
+order: 3000
