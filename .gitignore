@@ -27,6 +27,7 @@ backend/out/
 # Node.js / React
 # ---------------------------------------------------------------
 frontend/node_modules/
+frontend/dist/
 frontend/build/
 frontend/.pnp
 frontend/.pnp.js

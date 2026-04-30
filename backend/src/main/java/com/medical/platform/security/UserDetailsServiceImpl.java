@@ -5,7 +5,9 @@ import com.medical.platform.repository.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -18,8 +20,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + email));
+        String normalized = email == null ? "" : email.trim().toLowerCase(Locale.ROOT);
+        User user = userRepository.findByEmail(normalized)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + normalized));
 
         if (!user.isActive()) {
             throw new UsernameNotFoundException("Cuenta desactivada: " + email);

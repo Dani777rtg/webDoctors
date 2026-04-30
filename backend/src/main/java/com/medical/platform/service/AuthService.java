@@ -11,6 +11,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Locale;
+
 @Service
 public class AuthService {
 
@@ -35,12 +37,13 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest req) {
-        if (userRepository.existsByEmail(req.getEmail())) {
-            throw new BusinessException("El email ya está registrado: " + req.getEmail());
+        String email = normalizeEmail(req.getEmail());
+        if (userRepository.existsByEmail(email)) {
+            throw new BusinessException("El email ya está registrado: " + email);
         }
 
         User user = new User();
-        user.setEmail(req.getEmail());
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(req.getPassword()));
         user.setRole(Role.PATIENT);
         user.setFirstName(req.getFirstName());
@@ -56,11 +59,19 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest req) {
+        String email = normalizeEmail(req.getEmail());
         authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(req.getEmail(), req.getPassword())
+            new UsernamePasswordAuthenticationToken(email, req.getPassword())
         );
-        User user = userRepository.findByEmail(req.getEmail()).orElseThrow();
+        User user = userRepository.findByEmail(email).orElseThrow();
         return buildAuthResponse(user);
+    }
+
+    private static String normalizeEmail(String email) {
+        if (email == null) {
+            return "";
+        }
+        return email.trim().toLowerCase(Locale.ROOT);
     }
 
     private AuthResponse buildAuthResponse(User user) {
