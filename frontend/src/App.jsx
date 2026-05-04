@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { NavLink, Navigate, Route, Routes } from "react-router-dom";
+import { useMemo, useCallback } from "react";
+import { NavLink, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import {
   Activity,
   CalendarDays,
@@ -30,17 +30,20 @@ const roleRoutes = {
       {
         title: "Agendar nueva cita",
         text: "Busca especialidad, revisa disponibilidad y reserva en pocos pasos.",
-        cta: "Agendar ahora"
+        cta: "Agendar ahora",
+        href: "/appointments"
       },
       {
         title: "Reprogramar cita",
         text: "Actualiza fecha y hora sin perder tu historial.",
-        cta: "Reprogramar"
+        cta: "Reprogramar",
+        href: "/appointments"
       },
       {
         title: "Historial de citas",
         text: "Consulta atenciones previas y recomendaciones medicas.",
-        cta: "Ver historial"
+        cta: "Ver historial",
+        href: "/appointments"
       }
     ]
   },
@@ -56,17 +59,20 @@ const roleRoutes = {
       {
         title: "Mi agenda",
         text: "Visualiza el cronograma del dia con estados de cita en tiempo real.",
-        cta: "Abrir agenda"
+        cta: "Abrir agenda",
+        href: "/appointments"
       },
       {
         title: "Confirmar o cancelar",
         text: "Gestiona solicitudes pendientes y mantén la agenda actualizada.",
-        cta: "Gestionar citas"
+        cta: "Gestionar citas",
+        href: "/appointments"
       },
       {
         title: "Historial medico",
         text: "Registra observaciones y diagnostico de citas completadas.",
-        cta: "Registrar historial"
+        cta: "Registrar historial",
+        href: "/availability"
       }
     ]
   },
@@ -82,17 +88,20 @@ const roleRoutes = {
       {
         title: "Gestion de usuarios",
         text: "Activa, desactiva y administra cuentas de forma centralizada.",
-        cta: "Administrar usuarios"
+        cta: "Administrar usuarios",
+        href: "/users"
       },
       {
         title: "Crear medico",
         text: "Registra nuevos profesionales en menos de 2 minutos.",
-        cta: "Crear medico"
+        cta: "Crear medico",
+        href: "/users"
       },
       {
         title: "Agenda global",
         text: "Monitorea todas las citas del sistema por estado y rol.",
-        cta: "Ver agenda global"
+        cta: "Ver agenda global",
+        href: "/appointments"
       }
     ]
   }
@@ -192,6 +201,12 @@ function App() {
 }
 
 function DashboardView({ roleData, role }) {
+  const navigate = useNavigate();
+
+  const handleCardClick = useCallback((href) => {
+    navigate(href);
+  }, [navigate]);
+
   return (
     <div className="dashboard">
       <section className="hero-card">
@@ -222,7 +237,12 @@ function DashboardView({ roleData, role }) {
           <article key={card.title} className="feature-card">
             <h3>{card.title}</h3>
             <p>{card.text}</p>
-            <button type="button">{card.cta}</button>
+            <button 
+              type="button" 
+              onClick={() => handleCardClick(card.href)}
+            >
+              {card.cta}
+            </button>
           </article>
         ))}
       </section>
