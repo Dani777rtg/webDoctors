@@ -1,4 +1,4 @@
-import { useMemo, useCallback } from "react";
+import { useMemo, useCallback, useState, useEffect } from "react";
 import { NavLink, Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import {
   Activity,
@@ -16,6 +16,8 @@ import AppointmentsPage from "./pages/AppointmentsPage";
 import DoctorAvailabilityPage from "./pages/DoctorAvailabilityPage";
 import LoginPage from "./pages/auth/LoginPage";
 import RegisterPage from "./pages/auth/RegisterPage";
+import { getMyAppointments, getDoctorAppointments } from "./api/appointmentsApi";
+import { getGlobalAppointments } from "./api/adminApi";
 
 const roleRoutes = {
   patient: {
@@ -203,6 +205,35 @@ function App() {
 function DashboardView({ roleData, role }) {
   const navigate = useNavigate();
 
+  const [stats, setStats] = useState([]);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      let appointments = [];
+      if (role === "patient") {
+        appointments = await getMyAppointments();
+      } else if (role === "doctor") {
+        appointments = await getDoctorAppointments();
+      } else {
+        appointments = await getGlobalAppointments();
+      }
+
+      const activeCount = appointments.filter(a => a.status === "CONFIRMED").length;
+      const future = appointments
+        .filter(a => new Date(`${a.appointmentDate}T${a.startTime}`) > new Date())
+        .sort((a, b) => new Date(`${a.appointmentDate}T${a.startTime}`) - new Date(`${b.appointmentDate}T${b.startTime}`));
+      const next = future[0] ? `${future[0].appointmentDate} ${future[0].startTime}` : "Sin próxima cita";
+
+      setStats([
+        { label: "Citas activas", value: activeCount.toString(), icon: CalendarDays },
+        { label: "Próxima cita", value: next, icon: Clock3 },
+        { label: "Médicos favoritos", value: "3", icon: Stethoscope } // o calcula otro dato real
+      ]);
+    };
+
+    loadStats();
+  }, [role]);
+
   const handleCardClick = useCallback((href) => {
     navigate(href);
   }, [navigate]);
@@ -216,7 +247,7 @@ function DashboardView({ roleData, role }) {
       </section>
 
       <section className="stats-grid">
-        {roleData.stats.map((item) => {
+        {stats.map((item) => {
           const Icon = item.icon;
           return (
             <article key={item.label} className="stat-card">
